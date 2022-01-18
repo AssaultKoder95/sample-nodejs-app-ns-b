@@ -10,6 +10,7 @@ const PORT = process.env.PORT;
 // all requests goes through them
 app.use(express.json());
 
+// Dummy Data
 const usersArray = [
   {
     id: 1,
@@ -31,10 +32,35 @@ app.get("/api/users", (req, res) => {
   return res.json(usersArray);
 });
 
+app.get("/api/users/:userId", (req, res) => {
+  const userId = req.params.userId;
+
+  const filteredItem = usersArray.filter(
+    (user) => user.id === parseInt(userId, 10)
+  );
+
+  if (filteredItem.length) {
+    return res.json(filteredItem[0]);
+  } else {
+    res.statusCode = 404;
+    return res.json({ message: "Item not found!" });
+  }
+});
+
+function validateInputArgs(inputArgs) {
+  return !inputArgs.id && !inputArgs.name;
+}
+
 app.post("/api/users", (req, res) => {
   const inputArgs = req.body;
 
   // make sure input args are validated before inserting into DB
+  const isInputObjectInvalid = validateInputArgs(inputArgs);
+
+  if (isInputObjectInvalid) {
+    res.statusCode = 500;
+    res.end();
+  }
 
   console.log("inputArgs", inputArgs);
   usersArray.push(inputArgs);
@@ -49,16 +75,23 @@ app.post("/api/users", (req, res) => {
 
 app.put("/api/users/:userId", (req, res) => {
   const userId = req.params.userId;
+  const inputArgs = req.body;
 
-  console.log("path param:", userId, typeof userId);
+  const isInputObjectInvalid = !inputArgs.name;
 
-  const filteredItem = usersArray.filter(
+  if (isInputObjectInvalid) {
+    res.statusCode = 500;
+    res.end();
+  }
+
+  const itemIdx = usersArray.findIndex(
     (user) => user.id === parseInt(userId, 10)
   );
 
-  if (filteredItem.length) {
-    // the core logic differs
-    // we actually update item in the DB
+  if (itemIdx > -1) {
+    // Update inside an array of objects
+    usersArray[itemIdx].name = inputArgs.name;
+
     res.statusCode = 204;
     res.end();
   } else {
@@ -72,13 +105,12 @@ app.delete("/api/users/:userId", (req, res) => {
 
   console.log("path param:", userId);
 
-  const filteredItem = usersArray.filter(
+  const itemIdx = usersArray.findIndex(
     (user) => user.id === parseInt(userId, 10)
   );
 
-  if (filteredItem.length) {
-    // the core logic differs
-    // we actually delete the item from the DB
+  if (itemIdx > -1) {
+    usersArray.splice(itemIdx, 1);
     res.statusCode = 204;
     res.end();
   } else {
