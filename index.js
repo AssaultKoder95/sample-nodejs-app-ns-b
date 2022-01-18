@@ -3,8 +3,46 @@ const express = require("express");
 // define an instance of express app
 const app = express();
 
+const Joi = require("joi");
+
 // environment variable
 const PORT = process.env.PORT;
+
+// Custom Middleware
+
+function customMiddleware(req, res, next) {
+  // validate input values
+  // check if the user is authorized to access this endpoint
+  // checking if the element is present / not
+  console.log("Checking request body inside middleware", req.body);
+
+  const { error } = userSchema.validate(req.body);
+
+  if (error) {
+    // Bad Request
+    res.statusCode = 400;
+    res.json({ message: error.message });
+    res.end();
+  }
+
+  // console.log(req.headers);
+
+  // if (req.headers.userid == 5) {
+  //   res.statusCode = 403;
+  //   return res.json({
+  //     message: "User does not have permission to do this action",
+  //   });
+  // }
+
+  // if (req.body.id == 5) {
+  //   res.statusCode = 400;
+  //   return res.json({
+  //     message: "Item already exists",
+  //   });
+  // }
+
+  next();
+}
 
 // Middleware
 // all requests goes through them
@@ -47,22 +85,29 @@ app.get("/api/users/:userId", (req, res) => {
   }
 });
 
-function validateInputArgs(inputArgs) {
-  return !inputArgs.id && !inputArgs.name;
-}
+// Complex Input Validations
+// Use JOI Library
+const userSchema = Joi.object({
+  id: Joi.number().min(1).max(10).required(),
+  name: Joi.string().alphanum().min(5).max(8).required(),
+});
 
-app.post("/api/users", (req, res) => {
+app.post("/api/users", customMiddleware, (req, res) => {
   const inputArgs = req.body;
 
   // make sure input args are validated before inserting into DB
-  const isInputObjectInvalid = validateInputArgs(inputArgs);
+  // const { value, error } = userSchema.validate(inputArgs);
 
-  if (isInputObjectInvalid) {
-    res.statusCode = 500;
-    res.end();
-  }
+  // if (error) {
+  //   // Bad Request
+  //   res.statusCode = 400;
+  //   res.json({ message: error.message });
+  //   res.end();
+  // }
 
-  console.log("inputArgs", inputArgs);
+  // console.log("validated value", value);
+  // usersArray.push(value);
+
   usersArray.push(inputArgs);
 
   res.statusCode = 201;
