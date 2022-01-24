@@ -1,0 +1,99 @@
+/* Basic Queries
+
+-> Show databases
+show dbs;
+
+-> Use databases
+use local;
+
+-> Show collections // collection of documents
+
+-> Insert sample data
+db.inv_test.insertMany([
+    { item: "journal", qty: 25, status: "A", size: { h: 14, w: 21, uom: "cm" }, tags: [ "blank", "red" ] },
+    { item: "notebook", qty: 50, status: "A", size: { h: 8.5, w: 11, uom: "in" }, tags: [ "red", "blank" ] },
+    { item: "paper", qty: 10, status: "D", size: { h: 8.5, w: 11, uom: "in" }, tags: [ "red", "blank", "plain" ] },
+    { item: "planner", qty: 3, status: "D", size: { h: 22.85, w: 30, uom: "cm" }, tags: [ "blank", "red" ] },
+    { item: "postcard", qty: 45, status: "A", size: { h: 10, w: 15.25, uom: "cm" }, tags: [ "blue" ] }
+]);
+
+-> Fetch documents
+db.inv_test.find()
+
+-> Pretty print
+db.inv_test.find().pretty();
+
+-> Filter documents
+db.inv_test.find({ status: "A"  }).pretty();
+
+-> Show only required fields in result
+db.inv_test.find({ status: "A"  }, { item: true }).pretty();
+db.inv_test.find({ status: "A"  }, { item: true, _id: false }).pretty();
+db.inv_test.find({ status: "A"  }, { item: 1,qty:1, _id: 0 }).pretty();
+
+-> Searching inside nested objects
+db.inv_test.find({ "size.h": 8.5  }, { item: 1, _id: 0 }).pretty();
+
+-> Searching using Logical Operators 
+    -> And query
+        db.inv_test.find({ $and: [{ status: "A" }, { "size.h": 8.5 }] }, { item: 1, _id: 0}).pretty()
+    -> OR query
+        db.inv_test.find({ $or: [{ status: "A" }, { "size.h": 8.5 }] }, { item: 1, _id: 0}).pretty()
+
+-> Searching inside array
+    -> And query
+        db.inv_test.find({ tags: { $all: ["blank", "plain"] }}, { item: 1, _id: 0}).pretty()
+    -> OR query
+        db.inv_test.find({ tags: { $in: ["blue", "plain"] }}, { item: 1, _id: 0}).pretty()
+
+-> Operators 
+   -> Greater than // $gt
+        db.inv_test.find({ qty: { $gt: 30  } }, { item: 1, _id: 0}).pretty()
+   -> Greater than or equal to // $gte
+        db.inv_test.find({ qty: { $gte: 25  } }, { item: 1, _id: 0}).pretty()
+   -> Less than // $lt
+        db.inv_test.find({ qty: { $lt: 25  } }, { item: 1, _id: 0}).pretty()
+   -> Less than or equal to // $lte
+        db.inv_test.find({ qty: { $lte: 25  } }, { item: 1, _id: 0}).pretty()
+   -> Sort
+        db.inv_test.find({ }, { item: 1, qty: 1, _id: 0}).sort({ qty: -1 })
+        db.inv_test.find({ }, { item: 1, qty: 1, _id: 0}).sort({ qty: 1 })
+   -> Limit
+        // to find top 3 items wrt to qty
+        db.inv_test.find({ }, { item: 1, qty: 1, _id: 0}).sort({ qty: -1 }).limit(3)
+        
+        // to find the top item wrt to qty
+        db.inv_test.find({ }, { item: 1, qty: 1, _id: 0}).sort({ qty: -1 }).limit(1)
+   -> Skip
+        // to find the second top most item wrt to qty
+        db.inv_test.find({ }, { item: 1, qty: 1, _id: 0}).sort({ qty: -1 }).skip(1).limit(1)
+
+-> Updating documents
+    -> update 
+        db.inv_test.update({ item: "paper"  }, { $set: { qty: 100  } })
+        db.inv_test.update( { item: "paper"  }, { $set: { status: "B" } } )
+    -> add fields
+        db.inv_test.update( { item: "paper"  }, { $set: { unitPrice: 10 } } )
+    -> remove fields
+        db.inv_test.update( { item: "paper"  }, { $unset: { unitPrice: -3000 } } )
+
+-> Updating arrays
+db.inv_test.update({ item: "postcard" }, { $push: { tags: "green"  } })
+db.inv_test.update({ item: "postcard" }, { $pull: { tags: "green"  } })
+
+-> Inserting 1 document
+    db.inv_test.insertOne({ item: "diary", qty: 25, status: "A", size: { h: 14, w: 21, uom: "cm" }, tags: [ "blank", "red" ] })
+
+-> Deleting documents
+    db.inv_test.deleteOne({ _id: ObjectId("61eede8e6b4e76af061d5d62") })
+
+-> Indexes
+// MongoDB Indexes
+// is _id already indexed
+// how can you creat mutliple indexes ?
+// how can you make compound indexes?
+
+-> Drop Collection
+db.inv_test.drop();
+
+*/
