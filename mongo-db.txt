@@ -97,3 +97,12 @@ db.inv_test.update({ item: "postcard" }, { $pull: { tags: "green"  } })
 db.inv_test.drop();
 
 */
+
+
+db.users.insertMany([
+    { name: "AK", last_name: "1",  email: "ak1@ak.io" ,  phone_number: "8810088101" },
+    { name: "AK", last_name: "2",  email: "ak2@ak.io" ,  phone_number: "8810088102" },
+    { name: "AK", last_name: "3",  email: "ak3@ak.io" ,  phone_number: "8810088103" },
+    { name: "AK", last_name: "4",  email: "ak4@ak.io" ,  phone_number: "8810088104" },
+    { name: "AK", last_name: "5",  email: "ak5@ak.io",  phone_number: "8810088105" }
+]);

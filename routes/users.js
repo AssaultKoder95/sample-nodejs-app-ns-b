@@ -11,9 +11,9 @@ const {
   errorCodes,
 } = require("../helpers");
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const users = userController.getAllUserDetails();
+    const users = await userController.getAllUserDetails();
     responseHandler(res, successCodes.SUCCESS, users);
   } catch (error) {
     const message = (error && error.message) || error;
@@ -22,10 +22,11 @@ router.get("/", (req, res) => {
   }
 });
 
-router.get("/:userId", (req, res) => {
+router.get("/:userId", async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
-    const user = userController.getSingleUserDetails(userId);
+    // const userId = parseInt(req.params.userId, 10);
+    const userId = req.params.userId;
+    const user = await userController.getSingleUserDetails(userId);
     responseHandler(res, successCodes.SUCCESS, user);
   } catch (error) {
     const message = (error && error.message) || error;
@@ -39,18 +40,18 @@ router.get("/:userId", (req, res) => {
   }
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const inputArgs = req.body;
 
-    // make sure input args are validated before inserting into DB
-    const { value, error } = addUserSchema.validate(inputArgs);
+    // // make sure input args are validated before inserting into DB
+    // const { value, error } = addUserSchema.validate(inputArgs);
 
-    if (error) {
-      return errorHandler(res, errorCodes.BAD_REQUEST, error);
-    }
+    // if (error) {
+    //   return errorHandler(res, errorCodes.BAD_REQUEST, error);
+    // }
 
-    const addedUser = userController.addUser(value);
+    const addedUser = await userController.addUser(inputArgs);
 
     responseHandler(res, successCodes.CREATED, addedUser);
   } catch (error) {
@@ -60,12 +61,13 @@ router.post("/", (req, res) => {
   }
 });
 
-router.put("/:userId", (req, res) => {
+router.put("/:userId", async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    // const userId = parseInt(req.params.userId, 10);
+    const userId = req.params.userId;
     const { name } = req.body;
 
-    const updatedUser = userController.updateUser(userId, name);
+    const updatedUser = await userController.updateUser(userId, name);
 
     responseHandler(res, successCodes.SUCCESS, updatedUser);
   } catch (error) {
@@ -80,11 +82,12 @@ router.put("/:userId", (req, res) => {
   }
 });
 
-router.delete("/:userId", (req, res) => {
+router.delete("/:userId", async (req, res) => {
   try {
     console.log(req.params);
-    const userId = parseInt(req.params.userId, 10);
-    userController.deleteUser(userId);
+    // const userId = parseInt(req.params.userId, 10);
+    const userId = req.params.userId;
+    await userController.deleteUser(userId);
 
     responseHandler(res, successCodes.CREATED_NO_CONTENT);
   } catch (error) {
